@@ -8,6 +8,10 @@ Port Scanner ,
 Admin Page Finder ,
 Whois ,
 
+Required libraries:
+
+
+
 For More Information See file FAQ.pdf
 
 author: Mr.BlackPY
