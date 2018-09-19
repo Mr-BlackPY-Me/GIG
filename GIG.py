@@ -50,7 +50,7 @@ start_menu = """
 ----------------------------------------------------------
 =======	Welcome To GLADIATOR IG	                         |           
 =======	Developed By: Mr.BlackPY                         |
-=======	Sep 16 2018      			                           |
+=======	Sep 16 2018      			                     |
 ======= For More Information See the file FAQ.pdf        |
 ----------------------------------------------------------
 """
