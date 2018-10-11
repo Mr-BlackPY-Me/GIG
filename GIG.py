@@ -43,9 +43,6 @@ except ImportError as b:
 [3] time 
 [4] subprocess 
 [5] datetime
-[6] urllib
-[7] urllib.request
-[8] sys
 
 [*] How to install them? (pip install module)
 Example: sudo pip install requests
