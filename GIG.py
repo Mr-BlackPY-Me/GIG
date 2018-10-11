@@ -3,7 +3,7 @@
 
 __author__ = "Mr.BlackPY"
 __product__ = "Gladiator IG"
-__version__ = "2.0"
+__version__ = "2.5"
 
 # FREE_SOFTWARE
 # FREEDOM
@@ -12,6 +12,19 @@ __version__ = "2.0"
 """
 GLADIATOR INFO GRABBER
 """
+# ==================================Colors==================================
+
+
+class bcolor:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREAN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 # ==================================Import Modules==================================
 
@@ -23,52 +36,55 @@ try:
     import datetime as dt
 
 except ImportError as b:
-    exit("""[!] WARNING: Install the prerequisites before running this program
+    exit(bcolor.WARNING + """[!] WARNING: Install the prerequisites before running this program
 
 [1] socket 
 [2] requests 
 [3] time 
 [4] subprocess 
 [5] datetime
+[6] urllib
+[7] urllib.request
+[8] sys
 
 [*] How to install them? (pip install module)
 Example: sudo pip install requests
 ---------------------------------------------\n{}\n
-""".format(b))
+""".format(b) + bcolor.ENDC)
 
 # ==================================Create required Variables==================================
 
-Logo = """
-  ____ ___ ____ 
- / ___|_ _/ ___|
-| |  _ | | |  _ 
-| |_| || | |_| | 
- \____|___\____|     v2.0       
-"""
+Logo = bcolor.HEADER + """
+      ____ ___ ____ 
+     / ___|_ _/ ___|
+    | |  _ | | |  _ 
+    | |_| || | |_| | 
+     \____|___\____|     v2.5
+       
+    """ + bcolor.ENDC
 
-start_menu = """
-----------------------------------------------------------
-=======	Welcome To GLADIATOR IG	                         |           
-=======	Developed By: Mr.BlackPY                         |
-=======	Sep 16 2018      			                     |
-======= For More Information See the file FAQ.pdf        |
-----------------------------------------------------------
-"""
+start_menu = bcolor.BOLD + """
+    ----------------------------------------------------------
+    ======= Welcome To GLADIATOR IG	                         |           
+    ======= Developed By: Mr.BlackPY                         |
+    ======= Oct 11 2018      			                     |
+    ======= For More Information See the file FAQ.pdf        |
+    ----------------------------------------------------------
+    """ + bcolor.ENDC
 
-msg = """
+
+errmsg = bcolor.FAIL + """
 We’re having trouble finding that site
 If that address is correct, here are 2 other things you can try:
 [1] Try again later.
 [2] Check your network connection.
-"""
+""" + bcolor.ENDC.upper()
 
-Help = "Example: https://www.Google.com\n"
+Help = bcolor.OKBLUE + "Example: Google.com\n" + bcolor.ENDC
 
 ld = "-----------------------------------------------------------"
 
 Ctrl_C = "\n[!] You pressed Ctrl+C"
-
-errmsg = msg.upper()
 
 # ==================================Global Variables==================================
 
@@ -76,15 +92,11 @@ global var
 
 global Target
 
-global url
-
-global sock
-
-global dic_file
-
 global IP
 
-global whois
+global Minimum
+
+global Maximum
 
 # ==================================Clear the Screen==================================
 
@@ -103,20 +115,21 @@ main()
 
 # ==================================Print current time==================================
 
-print("[*] Starting at {}\n".format(time.strftime("%X")))
+print(bcolor.OKBLUE + "[*] Starting at {}\n".format(time.strftime("%X") + bcolor.ENDC))
 
 print(Help)
 
 try:
-    Target = input("[?] Please Enter Target name:")
+    Target = str(input(bcolor.OKBLUE + "[?] Please Enter Your Target : ") + bcolor.ENDC)
+    Minimum = int(input(bcolor.OKBLUE + "Minimum port for scan: " + bcolor.ENDC))
+    Maximum = int(input(bcolor.OKBLUE + "Maximum port for scan: " + bcolor.ENDC))
 
 except KeyboardInterrupt:
     exit(Ctrl_C)
 
-if len(Target) == 0:
-    exit("[!] Please Enter Something Next Time.")
-else:
-    var = Target.strip() and Target.rstrip('/')
+Maximum += 1
+
+var = Target.strip() and Target.rstrip('/')
 
 try:
     IP = socket.gethostbyname(var)
@@ -127,40 +140,68 @@ except socket.gaierror:
 except socket.error:
     exit(errmsg)
 
-print("[*] Please Wait it may take a few minutes...\n[*] Target IP: {}\n".format(IP))
+message = "[*] Please Wait it may take a few minutes...\n[*] Target IP: {}\n".format(IP)
+print(bcolor.OKBLUE + message + bcolor.ENDC)
 
 if 'https://' and 'http://' not in var:
     var = 'http://' + var
 
+
+# ==================================Sign==================================
+
+
+def sing():
+    print(bcolor.BOLD + "\n[*] Please report bugs to: Gladiator.IG.dev@gmail.com" + bcolor.ENDC)
+    print(bcolor.BOLD + "\n[+] Information Collected By: GLADIATOR INFO GRABBER" + bcolor.ENDC)
+    print(bcolor.BOLD + "\n[*] Ended in {}\n".format(time.strftime("%X")) + bcolor.ENDC)
+
+# ====================================================================
+
+
+def wait():
+    m = bcolor.OKGREAN + "Please Wait....." + bcolor.ENDC
+    for i in m:
+        print(i, end='', flush=True)
+        time.sleep(1)
+    return
+
 # ==================================PORT SCANNER==================================
 # Reference: https://www.pythonforbeginners.com/port-scanner-in-python
 
-socket.setdefaulttimeout(1)
 
-try:
-    for port in range(0, 1080):  # You can change port number | Example: range(0, 655351) [All Ports]
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex((IP, port))
+def port_scanner(IP, Min=1, Max=1081):
+    global sock
+    socket.setdefaulttimeout(1)
 
-        if result == 0:
-            print("[+] Port {}".format(port))
+    try:
+        for port in range(Min, Max):  # You can change port number | Example: range(0, 655351) [All Ports]
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex((IP, port))
 
-except KeyboardInterrupt:
-    exit(Ctrl_C)
+            if result == 0:
+                print(bcolor.OKGREAN + "[+] Port {}".format(port) + bcolor.ENDC)
 
-except socket.gaierror:
-    exit(errmsg)
+        sock.close()
 
-except socket.error:
-    exit(errmsg)
+    except KeyboardInterrupt:
+        exit(Ctrl_C)
 
-print(ld)
+    except socket.gaierror:
+        exit(errmsg)
+
+    except socket.error:
+        exit(errmsg)
+
+    print(ld)
+    return
+
 
 # ==================================Whois==================================
+# Reference: https://www.stackoverflow.com/questions/python-whois-library-return-nothing-for-active-domain-names
 
-try:
 
-    def whois(ip):
+def whois(ip):
+    try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("whois.arin.net", 43))
         s.send(('n ' + ip + '\r\n').encode())
@@ -176,66 +217,120 @@ try:
             response += data
             if not data or elapsedTime >= timelimit:
                 break
+
         s.close()
-        print(response.decode())
+        print(bcolor.OKGREAN + response.decode() + bcolor.ENDC)
+        print(ld)
 
-except socket.gaierror:
-    exit(errmsg)
+    except socket.gaierror:
+        exit(errmsg)
 
-except socket.error:
-    exit(errmsg)
+    except socket.error:
+        exit(errmsg)
 
-except KeyboardInterrupt:
-    exit(Ctrl_C)
+    except KeyboardInterrupt:
+        exit(Ctrl_C)
 
-except Exception:
-    exit(errmsg)
+    except Exception:
+        exit(errmsg)
+    return
 
-whois(IP)
 
-print(ld)
+# ==================================Find sub domains==================================
 
+def find_sd(Tar):
+    global url
+
+    try:
+        file = open('dictsub.txt', 'r', encoding='utf-8')
+        for line in file.readlines():
+            url = line + Tar
+    except FileNotFoundError as f:
+        exit(f)
+
+    r = requests.head(url)
+    if r.status_code == 200:
+         print(bcolor.OKBLUE + '[+]' + url + bcolor.ENDC)
+         print(ld)
+    return 
 # ==================================ADMIN PAGE FINDER==================================
 
-try:
-    dic_file = open("dictionary.txt", "r", encoding="utf-8")  # open & read dictionary.txt
 
-except FileNotFoundError as h:
-    exit("[!] There was an error reading file!\n{}".format(h))
+def apf(target):
+    global dic_file
+    global url
 
-for aline in dic_file.readlines():
-    url = var + '/' + aline
+    try:
+        dic_file = open("dictionary.txt", "r", encoding="utf_8")
 
-try:
-    req = requests.head(url)
-    if req.status_code == 200:
-        print("[+]", url)
-        print(ld)
-    else:
-        print('Admin Page Not Found!')
-        print(ld)
+    except FileNotFoundError as h:
+        exit(bcolor.FAIL + "[!] There was an error reading file!\n{}".format(h) + bcolor.ENDC)
 
-except Exception:
-    exit(errmsg)
+    for aline in dic_file.readlines():
+        url = target + '/' + aline
 
-except KeyboardInterrupt:
-    exit(Ctrl_C)
+    try:
+        req = requests.head(url)
+        if req.status_code == 200:
+            print(bcolor.OKGREAN + "[+]" + url + bcolor.ENDC)
+            print(ld)
+        else:
+            print(bcolor.FAIL + 'Admin Page Not Found!' + bcolor.ENDC)
+            print(ld)
 
-# ==================================Sign==================================
+        dic_file.close()
 
-print("\n[+] Information Collected By: GLADIATOR INFO GRABBER")
+    except Exception:
+        exit(errmsg)
 
-print("\n[*] Ended in {}\n".format(time.strftime("%X")))
+    except KeyboardInterrupt:
+        exit(Ctrl_C)
+    return
+
+
+# ==================================Website Info==================================
+
+
+def wi(target):
+    global request
+
+    try:
+        request = requests.head(target)
+    except ConnectionError as CE:
+        print(errmsg, '\n {}'.format(CE))
+        exit(0)
+
+    print(bcolor.OKGREAN + "WebServer: " + request.headers['server'] + bcolor.ENDC)
+    print(ld)
+    return
+
+# ==================================Function call==================================
+
+wait()
+
+port_scanner(IP, Minimum, Maximum)
+wait()
+
+whois(IP)
+wait()
+
+apf(var)
+wait()
+
+find_sd(var)
+wait()
+
+wi(var)
+wait()
+
+sing()
 
 # ==================================Exit==================================
 
-dic_file.close()
-sock.close()
 exit(0)
 
 # ==================================THE END==================================
 
 if __name__ == "__main__":
     main()
-
 
