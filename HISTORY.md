@@ -78,7 +78,27 @@
 ------------------
 20. Added Option: Whois
 
+#Gladiator IG v2.1
+------------------
+21. Added Option: Finding webserver type
 
+#Gladiator IG v2.2
+------------------
+22. Optimized
+ 
+#Gladiator IG v2.3
+------------------
+23. Optimized
+ 
+#Gladiator IG v2.4
+------------------
+24. Added Option: Finding subdomains
+
+#Gladiator IG v2.5
+------------------
+24. The dising has developed
+
+ 
 
 
 
