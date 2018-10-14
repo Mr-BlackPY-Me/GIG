@@ -1,9 +1,10 @@
 #!/usr/bin/python3.6
+# -*- coding: utf-8 -*-
 # ==================================Info about the program==================================
 
 __author__ = "Mr.BlackPY"
 __product__ = "Gladiator IG"
-__version__ = "2.5"
+__version__ = "2.8"
 
 # FREE_SOFTWARE
 # FREEDOM
@@ -23,7 +24,6 @@ class bcolor:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 
 # ==================================Import Modules==================================
@@ -34,15 +34,17 @@ try:
     import time
     import subprocess
     import datetime as dt
+    import random
 
 except ImportError as b:
     exit(bcolor.WARNING + """[!] WARNING: Install the prerequisites before running this program
 
-[1] socket 
-[2] requests 
-[3] time 
-[4] subprocess 
+[1] socket
+[2] requests
+[3] time
+[4] subprocess
 [5] datetime
+[6] random
 
 [*] How to install them? (pip install module)
 Example: sudo pip install requests
@@ -52,30 +54,20 @@ Example: sudo pip install requests
 # ==================================Create required Variables==================================
 
 Logo = bcolor.HEADER + """
-      ____ ___ ____ 
-     / ___|_ _/ ___|
-    | |  _ | | |  _ 
-    | |_| || | |_| | 
-     \____|___\____|     v2.5
-       
+  ____ ___ ____ 
+ / ___|_ _/ ___|
+| |  _ | | |  _ 
+| |_| || | |_| |
+ \____|___\____|    Version: 2.8
     """ + bcolor.ENDC
 
 start_menu = bcolor.BOLD + """
-    ----------------------------------------------------------
-    ======= Welcome To GLADIATOR IG	                         |           
-    ======= Developed By: Mr.BlackPY                         |
-    ======= Oct 11 2018      			                     |
-    ======= For More Information See the file FAQ.pdf        |
-    ----------------------------------------------------------
+----------------------------------------------------------
+======= Welcome To GLADIATOR IG	                         |
+======= Developed By: Mr.BlackPY                         |
+======= For More Information See the file FAQ.pdf        |
+----------------------------------------------------------
     """ + bcolor.ENDC
-
-
-errmsg = bcolor.FAIL + """
-We’re having trouble finding that site
-If that address is correct, here are 2 other things you can try:
-[1] Try again later.
-[2] Check your network connection.
-""" + bcolor.ENDC.upper()
 
 Help = bcolor.OKBLUE + "Example: Google.com\n" + bcolor.ENDC
 
@@ -84,8 +76,6 @@ ld = "-----------------------------------------------------------"
 Ctrl_C = "\n[!] You pressed Ctrl+C"
 
 # ==================================Global Variables==================================
-
-global var
 
 global Target
 
@@ -116,33 +106,55 @@ print(bcolor.OKBLUE + "[*] Starting at {}\n".format(time.strftime("%X") + bcolor
 
 print(Help)
 
+# ==================================Get input from user==================================
+
 try:
-    Target = str(input(bcolor.OKBLUE + "[?] Please Enter Your Target : ") + bcolor.ENDC)
-    Minimum = int(input(bcolor.OKBLUE + "Minimum port for scan: " + bcolor.ENDC))
-    Maximum = int(input(bcolor.OKBLUE + "Maximum port for scan: " + bcolor.ENDC))
+    Target = str(input(bcolor.OKBLUE + "[?] Please Enter Your Target: " + bcolor.ENDC))
+    Minimum = int(input(bcolor.OKBLUE + "Minimum port range for scan: " + bcolor.ENDC))
+    Maximum = int(input(bcolor.OKBLUE + "Maximum port range for scan: " + bcolor.ENDC))
 
 except KeyboardInterrupt:
     exit(Ctrl_C)
 
+except ValueError as VE:
+    exit(VE)
+
 Maximum += 1
 
-var = Target.strip() and Target.rstrip('/')
+# ==================================check input==================================
 
-try:
-    IP = socket.gethostbyname(var)
 
-except socket.gaierror:
-    exit(errmsg)
+def check_input(user_target):
+    """
+    check the input it's valid or not
+    """
+    global check
 
-except socket.error:
-    exit(errmsg)
+    invalid = ["/", "*", "+", "\\", "|", "=", ")", "(", "&", "^", "%", "$", "#", "@", "!",
+               "~", "`", "<", ">", "?", "[", "]", "{", "}", ",", "_", "\'", "\"", ";", ":"]
 
-message = "[*] Please Wait it may take a few minutes...\n[*] Target IP: {}\n".format(IP)
-print(bcolor.OKBLUE + message + bcolor.ENDC)
+    user_target = user_target.strip() and user_target.rstrip('/')
 
-if 'https://' and 'http://' not in var:
-    var = 'http://' + var
+    for i in invalid:
+        a = user_target.find(i)
+        if a != -1:
+            print(bcolor.FAIL + "[-] Invalid input" + bcolor.ENDC)
+            exit(0)
 
+    return
+
+# ====================================================================
+
+
+check_input(Target)
+
+IP = socket.gethostbyname(Target)
+
+message = "[*] Please Wait it may take a few minutes...\n[*] {}\'s IP: {}\n".format(Target, IP)
+print(bcolor.OKGREAN + message + bcolor.ENDC)
+
+if 'https://' and 'http://' not in Target:
+    Target = 'http://' + Target
 
 # ==================================Sign==================================
 
@@ -151,15 +163,19 @@ def sing():
     print(bcolor.BOLD + "\n[*] Please report bugs to: Gladiator.IG.dev@gmail.com" + bcolor.ENDC)
     print(bcolor.BOLD + "\n[+] Information Collected By: GLADIATOR INFO GRABBER" + bcolor.ENDC)
     print(bcolor.BOLD + "\n[*] Ended in {}\n".format(time.strftime("%X")) + bcolor.ENDC)
+    print(ld)
 
-# ====================================================================
+# ===============================wait==================================
 
 
 def wait():
-    m = bcolor.OKGREAN + "Please Wait....." + bcolor.ENDC
+    m = bcolor.OKGREAN + "Wait....\n" + bcolor.ENDC
     for i in m:
         print(i, end='', flush=True)
-        time.sleep(1)
+        time.sleep(0.5)
+
+    print(ld)
+
     return
 
 # ==================================PORT SCANNER==================================
@@ -168,7 +184,15 @@ def wait():
 
 def port_scanner(IP, Min=1, Max=1081):
     global sock
+    global err
+
     socket.setdefaulttimeout(1)
+
+    err = "Minimum port range can\'t be bigger then Maximum port range "
+
+    if Min > Max:
+        print(bcolor.WARNING + err + bcolor.ENDC)
+        exit(0)
 
     try:
         for port in range(Min, Max):  # You can change port number | Example: range(0, 655351) [All Ports]
@@ -180,14 +204,11 @@ def port_scanner(IP, Min=1, Max=1081):
 
         sock.close()
 
+    except ConnectionError as CE:
+        exit(bcolor.FAIL + str(CE) + bcolor.ENDC)
+
     except KeyboardInterrupt:
         exit(Ctrl_C)
-
-    except socket.gaierror:
-        exit(errmsg)
-
-    except socket.error:
-        exit(errmsg)
 
     print(ld)
     return
@@ -198,64 +219,48 @@ def port_scanner(IP, Min=1, Max=1081):
 
 
 def whois(ip):
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("whois.arin.net", 43))
-        s.send(('n ' + ip + '\r\n').encode())
+        global response
+        global s
 
-        response = b''
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(("whois.arin.net", 43))
+            s.send(('n ' + ip + '\r\n').encode())
 
-        startTime = time.mktime(dt.datetime.now().timetuple())
-        timelimit = 3
+            response = b''
 
-        while True:
-            elapsedTime = time.mktime(dt.datetime.now().timetuple()) - startTime
-            data = s.recv(4096)
-            response += data
-            if not data or elapsedTime >= timelimit:
-                break
+            startTime = time.mktime(dt.datetime.now().timetuple())
+            timelimit = 3
 
-        s.close()
-        print(bcolor.OKGREAN + response.decode() + bcolor.ENDC)
-        print(ld)
+            while True:
+                elapsedTime = time.mktime(dt.datetime.now().timetuple()) - startTime
+                data = s.recv(4096)
+                response += data
+                if not data or elapsedTime >= timelimit:
+                    break
 
-    except socket.gaierror:
-        exit(errmsg)
+        except socket.gaierror:
+            print(bcolor.FAIL + "Hostname could not be resolved. Exiting" + bcolor.ENDC)
+            exit(0)
 
-    except socket.error:
-        exit(errmsg)
+        except socket.error:
+            print(bcolor.FAIL + "Could't connect to server" + bcolor.ENDC)
+            exit(0)
 
-    except KeyboardInterrupt:
-        exit(Ctrl_C)
+            s.close()
+            print(bcolor.OKGREAN + response.decode() + bcolor.ENDC)
+            print(ld)
 
-    except Exception:
-        exit(errmsg)
-    return
+            return
 
-
-# ==================================Find sub domains==================================
-
-def find_sd(Tar):
-    global url
-
-    try:
-        file = open('dictsub.txt', 'r', encoding='utf-8')
-        for line in file.readlines():
-            url = line + Tar
-    except FileNotFoundError as f:
-        exit(f)
-
-    r = requests.head(url)
-    if r.status_code == 200:
-         print(bcolor.OKBLUE + '[+]' + url + bcolor.ENDC)
-         print(ld)
-    return 
 # ==================================ADMIN PAGE FINDER==================================
 
 
-def apf(target):
+def apf(target, proxy, user_agent):
     global dic_file
     global url
+
+    headers = {'User-Agent': user_agent}
 
     try:
         dic_file = open("dictionary.txt", "r", encoding="utf_8")
@@ -267,7 +272,8 @@ def apf(target):
         url = target + '/' + aline
 
     try:
-        req = requests.head(url)
+        req = requests.head(url, headers=headers, proxies=proxy)
+
         if req.status_code == 200:
             print(bcolor.OKGREAN + "[+]" + url + bcolor.ENDC)
             print(ld)
@@ -277,51 +283,78 @@ def apf(target):
 
         dic_file.close()
 
-    except Exception:
-        exit(errmsg)
+    except requests.ConnectTimeout:
+        print(bcolor.FAIL + "[*] Website Don\'t Response" + bcolor.ENDC)
+        print(ld)
 
     except KeyboardInterrupt:
-        exit(Ctrl_C)
+        print(Ctrl_C)
+        exit(ld)
+
     return
 
+# ==================================Web server==================================
 
-# ==================================Website Info==================================
 
+def web_server(Target, proxy, user_agent):
 
-def wi(target):
-    global request
+    headers = {'User-Agent': user_agent}
 
     try:
-        request = requests.head(target)
-    except ConnectionError as CE:
-        print(errmsg, '\n {}'.format(CE))
-        exit(0)
+        r = requests.head(Target, headers=headers, proxies=proxy)
+        re = r.headers['server']
+        print(bcolor.OKGREAN + "WebServer: " + re + bcolor.ENDC)
+        print(ld)
+    except KeyError as k:
+        exit(k)
 
-    print(bcolor.OKGREAN + "WebServer: " + request.headers['server'] + bcolor.ENDC)
-    print(ld)
-    return
+# ==================================Get Free Proxy==================================
+
+
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20120306 Firefox/56.0'}
+
+proxy = requests.get('https://api.getproxylist.com/proxy', headers=headers).json()
+
+ip = str(proxy['ip'])
+port = str(proxy['port'])
+
+free_proxy = {'http': ip + ':' + port}
+
+# ==================================User-Agent Generator==================================
+
+version = [5.0, 4.0]
+
+system_information = ['(X11; Linux x86_64; rv:45.0)', '(Macintosh; Intel Mac OS X 10.10; rv:48.0)']
+
+platform = ['Gecko/20100101', 'Gecko/20120306', 'Gecko/20090824']
+
+platform_details = ['Firefox/56.0', 'Firefox/45.0', 'Firefox/3.6.28', 'Firefox/48.0']
+
+user_agent = "Mozilla/{} {} {} {}".format(random.choice(version), random.choice(system_information),
+                                          random.choice(platform), random.choice(platform_details))
 
 # ==================================Function call==================================
 
-wait()
 
-port_scanner(IP, Minimum, Maximum)
-wait()
+try:
+    print(bcolor.OKBLUE + "Scanning Ports ...\n" + bcolor.ENDC)
+    port_scanner(IP, Minimum, Maximum)
+    wait()
+    # ---------------------------------------------------------------------
+    print(bcolor.OKBLUE + "Whois {}\n".format(Target) + bcolor.ENDC)
+    whois(IP)
+    wait()
+    # ---------------------------------------------------------------------
+    print(bcolor.OKBLUE + "Finding the admin page...\n" + bcolor.ENDC)
+    apf(Target, free_proxy, user_agent)
+    # ---------------------------------------------------------------------
+    print(bcolor.OKBLUE + "Finding type of webserver...\n" + bcolor.ENDC)
+    web_server(Target, free_proxy, user_agent)
 
-whois(IP)
-wait()
-
-apf(var)
-wait()
-
-find_sd(var)
-wait()
-
-wi(var)
-wait()
+except KeyboardInterrupt:
+    exit(Ctrl_C)
 
 sing()
-
 # ==================================Exit==================================
 
 exit(0)
