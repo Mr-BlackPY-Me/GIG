@@ -19,6 +19,6 @@ Required libraries:
 [5] datetime
 [6] random
 
-For More Information See file FAQ.pdf
+For More Information See FAQ.pdf
 
 author: Mr.BlackPY
