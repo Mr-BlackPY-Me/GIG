@@ -96,9 +96,16 @@
 
 #Gladiator IG v2.5
 ------------------
-24. The dising has developed
+25. The dising has developed
 
- 
+#Gladiator IG v2.6
+------------------
+26. Some options have been removed
 
+#Gladiator IG v2.7
+------------------
+27. Optimized
 
-
+#Gladiator IG v2.8
+------------------
+28. Optimized
